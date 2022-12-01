@@ -1,0 +1,17 @@
+{
+  "name": "advent-of-code-2022",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:nrxsmith/adventOfCode2022.git",
+  "author": "Nate Smith <nate.smith@care.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.11.10"
+  },
+  "scripts": {
+    "puzzle01": "ts-node day1/puzzle01b.ts"
+  },
+  "dependencies": {
+    "heap-js": "^2.2.0"
+  }
+}
