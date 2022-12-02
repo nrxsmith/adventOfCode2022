@@ -9,7 +9,8 @@
     "@types/node": "^18.11.10"
   },
   "scripts": {
-    "puzzle01": "ts-node day1/puzzle01b.ts"
+    "puzzle01": "ts-node day1/puzzle01b.ts",
+    "puzzle02": "ts-node day2/puzzle02b.ts"
   },
   "dependencies": {
     "heap-js": "^2.2.0"
