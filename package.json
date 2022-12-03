@@ -10,9 +10,11 @@
   },
   "scripts": {
     "puzzle01": "ts-node day1/puzzle01b.ts",
-    "puzzle02": "ts-node day2/puzzle02b.ts"
+    "puzzle02": "ts-node day2/puzzle02b.ts",
+    "puzzle03": "ts-node day3/puzzle03b.ts"
   },
   "dependencies": {
-    "heap-js": "^2.2.0"
+    "heap-js": "^2.2.0",
+    "ts-node": "^10.9.1"
   }
 }
