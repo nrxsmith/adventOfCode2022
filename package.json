@@ -12,7 +12,8 @@
     "puzzle01": "ts-node day1/puzzle01b.ts",
     "puzzle02": "ts-node day2/puzzle02b.ts",
     "puzzle03": "ts-node day3/puzzle03b.ts",
-    "puzzle04": "ts-node day4/puzzle04b.ts"
+    "puzzle04": "ts-node day4/puzzle04b.ts",
+    "puzzle05": "ts-node day5/puzzle05a.ts"
   },
   "dependencies": {
     "heap-js": "^2.2.0",
