@@ -46,7 +46,7 @@ class FileSystemDir {
       dirSize += dir.getSize();
     });
 
-    if (dirSize >= 8381165 && dirSize < currentMinimum) {
+    if (dirSize >= NEEDED_SPACE && dirSize < currentMinimum) {
       currentMinimum = dirSize;
     }
     return dirSize;
