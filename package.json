@@ -6,7 +6,7 @@
   "author": "Nate Smith <nate.smith@care.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.11.10"
+    "@types/node": "^18.11.12"
   },
   "scripts": {
     "puzzle01": "ts-node day1/puzzle01b.ts",
@@ -17,7 +17,7 @@
     "puzzle06": "ts-node day6/puzzle06b.ts",
     "puzzle07": "ts-node day7/puzzle07b.ts",
     "puzzle08": "ts-node day8/puzzle08b.ts",
-    "puzzle09": "ts-node day9/puzzle09a.ts"
+    "puzzle09": "ts-node day9/puzzle09b.ts"
   },
   "dependencies": {
     "heap-js": "^2.2.0",

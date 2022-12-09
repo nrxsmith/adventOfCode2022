@@ -141,8 +141,5 @@ file.on('line', (line) => {
 });
 
 file.on('close', () => {
-  locationsVisited.forEach((loc) => {
-    console.log(loc)
-  })
   console.log(`The tail has visited ${locationsVisited.size} locations`);
 });
