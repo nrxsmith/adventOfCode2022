@@ -13,16 +13,24 @@ let mapRows: number[][] = []
 let start: [number, number] = [-1, -1]
 let end: [number, number] = [-1, -1]
 let shortestPath = Infinity
+let locationScores = new Map<string, number>()
 
 const searchForPath = (location: [number, number], visited: Set<string>, steps: number) => {
   const currentLocationString = `${location[0]} ${location[1]}`
   const endString = `${end[0]} ${end[1]}`
-  console.log(`Searching from ${currentLocationString}`)
-  console.log(`Current step count: ${steps}`)
 
   if (currentLocationString === endString) {
-    console.log(`Found the end!`)
+    console.log(`Found the end! at ${currentLocationString} with ${steps} steps.`)
+    console.log(visited)
     shortestPath = Math.min(shortestPath, steps)
+    return
+  }
+
+  if (locationScores.get(currentLocationString) && locationScores.get(currentLocationString)! <= steps) {
+    // Bail if we got to this location another way that was shorter
+    return
+  } else {
+    locationScores.set(currentLocationString, steps)
   }
 
   if (steps >= shortestPath) {
@@ -42,26 +50,26 @@ const searchForPath = (location: [number, number], visited: Set<string>, steps: 
 
   visited.add(currentLocationString)
 
-  if (!visited.has(westLocationString) && currentElevation <= westElevation + 1 && currentElevation >= westElevation - 1) {
-    console.log('Going west')
+  if (!visited.has(westLocationString) && currentElevation >= westElevation - 1 && westElevation !== Infinity) {
+  //  console.log('Going west')
     searchForPath([location[0], location[1] - 1], new Set(visited), steps + 1)
   }
   
-  if (!visited.has(eastLocationString) && currentElevation <= eastElevation + 1 && currentElevation >= eastElevation - 1) {
-    console.log('Going east')
+  if (!visited.has(eastLocationString) && currentElevation >= eastElevation - 1 && eastElevation !== Infinity) {
+  //  console.log('Going east')
     searchForPath([location[0], location[1] + 1], new Set(visited), steps + 1)
   } 
   
-  if (!visited.has(northLocationString) && currentElevation <= northElevation + 1 && currentElevation >= northElevation - 1) {
-    console.log('Going north')
+  if (!visited.has(northLocationString) && currentElevation >= northElevation - 1 && northElevation !== Infinity) {
+  //  console.log('Going north')
     searchForPath([location[0] - 1, location[1]], new Set(visited), steps + 1)
   } 
   
-  if (!visited.has(southLocationString) && currentElevation <= southElevation + 1 && currentElevation >= southElevation - 1) {
-    console.log('Going south')
+  if (!visited.has(southLocationString) && currentElevation >= southElevation - 1 && southElevation !== Infinity) {
+  //  console.log('Going south')
     searchForPath([location[0] + 1, location[1]], new Set(visited), steps + 1)
   }
-  console.log(`No path found this way; stopping at ${currentLocationString}`)
+  //console.log(`No path found this way; stopping at ${currentLocationString}`)
 }
 
 file.on('line', (line) => {
