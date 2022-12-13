@@ -21,7 +21,7 @@
     "puzzle10": "ts-node day10/puzzle10b.ts",
     "puzzle11": "ts-node day11/puzzle11b.ts",
     "puzzle12": "ts-node day12/puzzle12b.ts",
-    "puzzle13": "ts-node day13/puzzle13a.ts"
+    "puzzle13": "ts-node day13/puzzle13b.ts"
   },
   "dependencies": {
     "heap-js": "^2.2.0",

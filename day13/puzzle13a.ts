@@ -9,36 +9,41 @@ const file = readline.createInterface({
   terminal: false,
 });
 
-const compareArrays = (first: any[], second: any[]): boolean => {
-  for (let i = 0; i < Math.max(first.length, second.length); i++) {
-    if (!Array.isArray(first[i]) && !Array.isArray(second[i])) {
-      if (!compareInts(first[i], second[i])) return false
-    } else if (Array.isArray(first[i]) && Array.isArray(second[i])) {
-      // If only the second array is empty, return false
-      if (first[i].length > 0 && second[i].length === 0) return false
-      if (!compareArrays(first[i], second[i])) return false
-    } else if (!Array.isArray(first[i]) && Array.isArray(second[i])) {
-      // Create an array and add the number to it
-      let f: number[] = []
-      f.push(first[i])
-      if (!compareArrays(f, second[i])) return false
-    } else if (Array.isArray(first[i] && !Array.isArray(second[i]))) {
-      // Create an array and add the number to it
-      let s: number[] = []
-      s.push(second[i])
-      if (!compareArrays(first[i], s)) return false
+const compareArrays = (left: any[], right: any[]): boolean | void => {  
+
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    if (left[i] === undefined) return true
+    if (right[i] === undefined) return false
+
+    if (!Array.isArray(left[i]) && !Array.isArray(right[i])) {
+      if (left[i] < right[i]) return true
+      if (left[i] > right[i]) return false
+      continue
     }
+    
+    else if (Array.isArray(left[i]) && Array.isArray(right[i])) {
+      if (compareArrays(left[i], right[i]) === true) return true
+      if (compareArrays(left[i], right[i]) === false) return false
+      continue
+    }
+    
+    else if ((!Array.isArray(left[i])) && Array.isArray(right[i])) {
+      let f: number[] = []
+      f.push(left[i])
+      if (compareArrays(f, right[i]) === true) return true
+      if (compareArrays(f, right[i]) === false) return false
+      continue
+    }
+    
+    else if (Array.isArray(left[i]) && !Array.isArray(right[i])) {
+      let s: number[] = []
+      s.push(right[i])
+      if (compareArrays(left[i], s) === true) return true
+      if (compareArrays(left[i], s) === false) return false
+      continue
+    } 
   }
-  return true
 }
-
-const compareInts = (first: number | undefined, second: number | undefined): boolean => {
-  if (Number.isInteger(first) && second === undefined) return false
-  if (Number.isInteger(first) && Number.isInteger(second) && first! > second!) return false
-
-  return true
-}
-
 
 let pairs: [any, any][] = []
 let pairToAdd: [any, any] = [null, null]
@@ -67,7 +72,6 @@ file.on('close', () => {
     }
   }
 
-  console.log(oneIndexedIndices)
   let sum = oneIndexedIndices.reduce((prev, curr) => prev + curr, 0)
   console.log(`Result: ${sum}`)
 });
