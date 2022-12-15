@@ -9,7 +9,7 @@ const file = readline.createInterface({
   terminal: false,
 });
 
-const emptyStartingRow: boolean[] = new Array(1000);
+const emptyStartingRow: boolean[] = new Array(10000);
 emptyStartingRow.fill(false, 0);
 const cave: boolean[][] = new Array(200);
 for (let i = 0; i < cave.length; i++) {
@@ -20,9 +20,8 @@ interface point {
   x: number;
   y: number;
 }
-
+let highestY = 0;
 const insertRockVein = (coordinate1: point, coordinate2: point) => {
-  
   // go down if positive, up if negative
   if (coordinate1.x === coordinate2.x) {
     let x = coordinate1.x;
@@ -31,15 +30,18 @@ const insertRockVein = (coordinate1: point, coordinate2: point) => {
     if (coordinate2.y - coordinate1.y > 0) {
       while (y <= coordinate2.y) {
         cave[y][x] = true;
+        highestY = Math.max(y, highestY);
         y++;
       }
     } else if (coordinate2.y - coordinate1.y < 0) {
       while (y >= coordinate2.y) {
         cave[y][x] = true;
+        highestY = Math.max(y, highestY);
         y--;
       }
     }
   } else if (coordinate1.y === coordinate2.y) {
+    highestY = Math.max(coordinate1.y, highestY);
     let x = coordinate1.x;
     let y = coordinate1.y;
 
@@ -63,12 +65,11 @@ const dropSand = () => {
 
   let position: point = {
     x: 500,
-    y: -1,
+    y: 0,
   };
 
   // Add a row if there aren't enough
   while (falling && !fallingForever) {
- 
     if (!cave[position.y + 1]) {
       cave[position.y + 1] = Array.from(emptyStartingRow);
     }
@@ -86,10 +87,16 @@ const dropSand = () => {
       position.y += 1;
       position.x += 1;
     } else {
-      cave[position.y][position.x] = true;
-      falling = false;
-      return fallingForever;
+      if (position.x === 500 && position.y === 0) {
+        console.log(`We're at the top!`);
+        return true;
+      } else {
+        cave[position.y][position.x] = true;
+        falling = false;
+        return fallingForever;
+      }
     }
+
     if (position.y > 1000) {
       console.log('We seem to be falling forever.');
       fallingForever = true;
@@ -121,6 +128,8 @@ file.on('line', (line) => {
 });
 
 file.on('close', () => {
+  insertRockVein({ x: 0, y: highestY + 2 }, { x: 9999, y: highestY + 2 });
+
   for (let r = 0; r < 200; r++) {
     let row = '';
     for (let c = 480; c < 520; c++) {
@@ -136,13 +145,14 @@ file.on('close', () => {
   let sandCount = 0;
   let done = false;
 
-  while (!done && sandCount < 1000) {
+  while (!done && sandCount < 100000) {
     sandCount++;
     done = dropSand();
   }
 
-  console.log(
-    `We dropped ${sandCount - 1} grains of sand before falling forever.`
-  );
+  console.log(`The floor is at ${highestY + 2}`);
 
+  console.log(
+    `We dropped ${sandCount} grains of sand before stopping..`
+  );
 });
