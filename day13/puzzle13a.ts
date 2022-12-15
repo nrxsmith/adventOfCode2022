@@ -9,40 +9,43 @@ const file = readline.createInterface({
   terminal: false,
 });
 
-const compareArrays = (left: any[], right: any[]): boolean | void => {  
+const compareArrays = (left: any[], right: any[])=> {  
+  if (Array.isArray(left) && Array.isArray(right) && right.length === 0 && left.length === 0) return 1
 
   for (let i = 0; i < Math.max(left.length, right.length); i++) {
-    if (left[i] === undefined) return true
-    if (right[i] === undefined) return false
+    if (left[i] === undefined) return 1
+    if (right[i] === undefined) return -1
 
     if (!Array.isArray(left[i]) && !Array.isArray(right[i])) {
-      if (left[i] < right[i]) return true
-      if (left[i] > right[i]) return false
+      if (left[i] < right[i]) return 1
+      if (left[i] > right[i]) return -1
       continue
     }
     
     else if (Array.isArray(left[i]) && Array.isArray(right[i])) {
-      if (compareArrays(left[i], right[i]) === true) return true
-      if (compareArrays(left[i], right[i]) === false) return false
+      if (compareArrays(left[i], right[i]) === 1) return 1
+      if (compareArrays(left[i], right[i]) === -1) return -1
       continue
     }
     
     else if ((!Array.isArray(left[i])) && Array.isArray(right[i])) {
       let f: number[] = []
       f.push(left[i])
-      if (compareArrays(f, right[i]) === true) return true
-      if (compareArrays(f, right[i]) === false) return false
+      if (compareArrays(f, right[i]) === 1) return 1
+      if (compareArrays(f, right[i]) === -1) return -1
       continue
     }
     
     else if (Array.isArray(left[i]) && !Array.isArray(right[i])) {
       let s: number[] = []
       s.push(right[i])
-      if (compareArrays(left[i], s) === true) return true
-      if (compareArrays(left[i], s) === false) return false
+      if (compareArrays(left[i], s) === 1) return 1
+      if (compareArrays(left[i], s) === -1) return -1
       continue
-    } 
+    }
   }
+  // If it ends up here, that's the two lists being the same size with the same values
+  return 0
 }
 
 let pairs: [any, any][] = []
