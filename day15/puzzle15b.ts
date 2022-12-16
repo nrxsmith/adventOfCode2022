@@ -25,11 +25,47 @@ const getManhattanDistance = (sensorX: number, sensorY: number, beaconX: number,
   return Math.abs(sensorX - beaconX) + Math.abs(sensorY - beaconY)
 }
 
-const hasItem = (x: number, y: number, items: position[]): boolean => {
-  for (let i of items) {
-    if (i.x === x && i.y === y) return true
+const getSensorRangesForRow = (row: number) => {
+  let ranges: [number, number][] = []
+
+  sensors.forEach((sensor) => {
+    const distanceToRow = Math.abs(sensor.y - row)
+    if (distanceToRow > sensor.manhattanRadius) return
+
+    const rangeRemaining = sensor.manhattanRadius - distanceToRow
+    ranges.push([sensor.x - rangeRemaining, sensor.x + rangeRemaining])
+  })
+
+  return ranges
+}
+
+const checkRangesForRow = (row: number) => {
+  let ranges = getSensorRangesForRow(row)
+
+  if (ranges.length === 0) throw new Error('No ranges found')
+  let mergedRange: [number, number] = ranges.pop()!
+
+  let gapFound = false
+
+  while (ranges.length > 0) {
+    const r = ranges.find((range) => mergedRange[1] >= range[0] || range[1] >= mergedRange[0])
+    
+    if (!r) {
+      gapFound = true
+      console.log(`There is a gap on row ${row}`)
+      console.log(`Ranges remaining:`)
+      ranges.forEach((range) => {
+        console.log(`${range[0]}-${range[1]}`)
+      })
+      break
+    }
+
+    ranges = ranges.filter((range) => !(mergedRange[1] >= range[0] || range[1] >= mergedRange[0]))
+    if (mergedRange[1] >= r[0]!) mergedRange[1] = r[1]
+    else if (r[1] >= mergedRange[0]) mergedRange[0] = r[0]
   }
-  return false
+
+  return gapFound
 }
 
 file.on('line', (line) => {
@@ -54,19 +90,12 @@ file.on('line', (line) => {
 
 file.on('close', () => {
   for (let r = 0; r < 4000000; r++) {
-  console.log(`Row ${r}`)
-    for (let i = 0; i < 4000000; i++) {
-      let couldBeHere = true
-      for (let s of sensors) {
-        if (getManhattanDistance(s.x, s.y, i, r) <= s.manhattanRadius || hasItem(i, r, sensors) || hasItem(i, r, beacons)) {
-          couldBeHere = false
-          break;
-        }
-      }
-      if (couldBeHere) {
-        console.log(`It could be here! x: ${i} y:${r}`)
-        console.log(`Tuning frequency is ${(4000000 * i) + r}`)
-      }
+    let hasGap = checkRangesForRow(r)
+
+    if (hasGap) {
+      console.log(`Found a gap on row ${r}!`)
+      break
     }
   }
+  console.log('No gaps found')
 });
