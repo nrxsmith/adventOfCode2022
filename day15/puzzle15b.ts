@@ -9,8 +9,6 @@ const file = readline.createInterface({
   terminal: false,
 });
 
-const ROW_NUMBER = 10;
-
 interface position {
   x: number;
   y: number;
@@ -55,20 +53,20 @@ file.on('line', (line) => {
 });
 
 file.on('close', () => {
-  sensors.forEach((s) => console.log(JSON.stringify(s, undefined, 2)))
-  console.log('------BEACONS-------')
-  beacons.forEach((s) => console.log(JSON.stringify(s, undefined, 2)))
-  let noBeaconPositions = 0
-
-  for (let i = -10000000; i < 10000000; i++) {
-    for (let s of sensors) {
-      if (getManhattanDistance(s.x, s.y, i, ROW_NUMBER) <= s.manhattanRadius && !hasItem(i, ROW_NUMBER, beacons)) {
-        if (hasItem(i, ROW_NUMBER, beacons)) console.log(`x: ${i} y: ${ROW_NUMBER}`)
-        noBeaconPositions++
-        break;
+  for (let r = 0; r < 4000000; r++) {
+  console.log(`Row ${r}`)
+    for (let i = 0; i < 4000000; i++) {
+      let couldBeHere = true
+      for (let s of sensors) {
+        if (getManhattanDistance(s.x, s.y, i, r) <= s.manhattanRadius || hasItem(i, r, sensors) || hasItem(i, r, beacons)) {
+          couldBeHere = false
+          break;
+        }
+      }
+      if (couldBeHere) {
+        console.log(`It could be here! x: ${i} y:${r}`)
+        console.log(`Tuning frequency is ${(4000000 * i) + r}`)
       }
     }
   }
-
-  console.log(`There are ${noBeaconPositions} positions on this row that cannot contain a beacon`)
 });
