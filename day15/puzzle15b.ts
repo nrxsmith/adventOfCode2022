@@ -9,6 +9,8 @@ const file = readline.createInterface({
   terminal: false,
 });
 
+const AREA_LIMIT = 4000000;
+
 interface position {
   x: number;
   y: number;
@@ -18,84 +20,126 @@ interface sensor extends position {
   manhattanRadius: number;
 }
 
-const sensors: sensor[] = []
-const beacons: position[] = []
+const sensors: sensor[] = [];
+const beacons: position[] = [];
 
-const getManhattanDistance = (sensorX: number, sensorY: number, beaconX: number, beaconY: number) => {
-  return Math.abs(sensorX - beaconX) + Math.abs(sensorY - beaconY)
-}
+const getManhattanDistance = (
+  sensorX: number,
+  sensorY: number,
+  beaconX: number,
+  beaconY: number
+) => {
+  return Math.abs(sensorX - beaconX) + Math.abs(sensorY - beaconY);
+};
 
 const getSensorRangesForRow = (row: number) => {
-  let ranges: [number, number][] = []
+  let ranges: [number, number][] = [];
 
   sensors.forEach((sensor) => {
-    const distanceToRow = Math.abs(sensor.y - row)
-    if (distanceToRow > sensor.manhattanRadius) return
+    const distanceToRow = Math.abs(sensor.y - row);
+    if (distanceToRow > sensor.manhattanRadius) return;
 
-    const rangeRemaining = sensor.manhattanRadius - distanceToRow
-    ranges.push([sensor.x - rangeRemaining, sensor.x + rangeRemaining])
-  })
+    const rangeRemaining = sensor.manhattanRadius - distanceToRow;
+    const min = Math.max(0, sensor.x - rangeRemaining);
+    const max = Math.min(AREA_LIMIT, sensor.x + rangeRemaining);
+    ranges.push([min, max]);
+  });
 
-  return ranges
-}
+  return ranges;
+};
 
 const checkRangesForRow = (row: number) => {
-  let ranges = getSensorRangesForRow(row)
+  let ranges = getSensorRangesForRow(row);
+  if (ranges.length === 0) throw new Error('No ranges found');
+  let mergedRange: [number, number] = ranges.pop()!;
 
-  if (ranges.length === 0) throw new Error('No ranges found')
-  let mergedRange: [number, number] = ranges.pop()!
-
-  let gapFound = false
+  let gapFound = false;
 
   while (ranges.length > 0) {
-    const r = ranges.find((range) => mergedRange[1] >= range[0] || range[1] >= mergedRange[0])
-    
-    if (!r) {
-      gapFound = true
-      console.log(`There is a gap on row ${row}`)
-      console.log(`Ranges remaining:`)
-      ranges.forEach((range) => {
-        console.log(`${range[0]}-${range[1]}`)
-      })
-      break
+    // Find the index of the first overlapping range
+    const r = ranges.findIndex(
+      (range) =>
+        (mergedRange[1] >= range[0] && mergedRange[1] <= range[1]) ||
+        (mergedRange[0] <= range[1] && mergedRange[0] >= range[0])
+    );
+
+    // If there isn't one, we found a gap
+    if (r === -1) {
+      gapFound = true;
+
+      for (let i = 0; i < AREA_LIMIT; i++) {
+        let inRanges = false
+        getSensorRangesForRow(row).forEach((rg) => {
+          if ( i >= rg[0] && i <= rg[1]) {
+            inRanges = true
+          }
+        })
+        if (!inRanges) {
+          console.log(`Gap found at x: ${row} y: ${i}`)
+          console.log(`Tuning frequency is ${(i * AREA_LIMIT) + row}`)
+        }
+
+      }
+      break;
     }
 
-    ranges = ranges.filter((range) => !(mergedRange[1] >= range[0] || range[1] >= mergedRange[0]))
-    if (mergedRange[1] >= r[0]!) mergedRange[1] = r[1]
-    else if (r[1] >= mergedRange[0]) mergedRange[0] = r[0]
-  }
+    // Extend the merged range to cover the one we found
+    if (mergedRange[1] >= ranges[r][0] && mergedRange[1] <= ranges[r][1]) {
+      mergedRange[1] = ranges[r][1];
+    } 
+    
+    if (mergedRange[0] >= ranges[r][0] && mergedRange[0] <= ranges[r][1]) {
+      mergedRange[0] = ranges[r][0];
+    }
 
-  return gapFound
-}
+    // Remove the range we found
+    ranges = ranges.filter((range, index) => {
+      if (index !== r) {
+        return range;
+      }
+    });
+
+    // Remove any ranges completely covered by the existing merged range
+    ranges = ranges.filter(
+      (range) => !(mergedRange[0] <= range[0] && mergedRange[1] >= range[1])
+    );
+  }
+  return gapFound;
+};
 
 file.on('line', (line) => {
   const matches = line.matchAll(/-?\d+/g);
-  const coordinates: number[] = []
+  const coordinates: number[] = [];
 
   for (const match of matches) {
-    coordinates.push(Number.parseInt(match[0]))
+    coordinates.push(Number.parseInt(match[0]));
   }
 
   sensors.push({
     x: coordinates[0],
     y: coordinates[1],
-    manhattanRadius: getManhattanDistance(coordinates[0], coordinates[1], coordinates[2], coordinates[3])
-  })
+    manhattanRadius: getManhattanDistance(
+      coordinates[0],
+      coordinates[1],
+      coordinates[2],
+      coordinates[3]
+    ),
+  });
 
   beacons.push({
     x: coordinates[2],
-    y: coordinates[3]
-  })
+    y: coordinates[3],
+  });
 });
 
 file.on('close', () => {
-  for (let r = 0; r < 4000000; r++) {
-    let hasGap = checkRangesForRow(r)
+  let hasGap = false
+  for (let r = 0; r < AREA_LIMIT; r++) {
+    hasGap = checkRangesForRow(r);
 
     if (hasGap) {
-      console.log(`Found a gap on row ${r}!`)
-      break
+      break;
     }
   }
-  console.log('No gaps found')
+  if (!hasGap) console.log('No gaps found');
 });
